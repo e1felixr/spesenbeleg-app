@@ -1,18 +1,18 @@
 # E1 Spesenbeleg
 
-Progressive Web App (PWA) zum mobilen Erfassen von Spesenbelegen: Beleg fotografieren, zuschneiden (begradigen/aufhellen) und per Teilen-Menü an die eigene Mail-Adresse senden. Läuft komplett im Browser, funktioniert offline und lässt sich auf dem Smartphone wie eine native App installieren.
+Progressive Web App (PWA) zum mobilen Erfassen von Spesenbelegen: mehrere Belege nacheinander fotografieren und zuschneiden (begradigen/aufhellen), in einer Sammlung ansehen und am Ende ALLE zusammen in einer einzigen Mail per Teilen-Menü versenden. Läuft komplett im Browser, funktioniert offline und lässt sich auf dem Smartphone wie eine native App installieren.
 
 **App starten:** [https://e1felixr.github.io/spesenbeleg-app/](https://e1felixr.github.io/spesenbeleg-app/)
 
-**aktuelle Version:** v0.1.1 · **Letzte Änderung:** 05.08.2026
+**aktuelle Version:** v0.2.0 · **Letzte Änderung:** 07.08.2026
 
 ## So funktioniert's
 
 Drei Schritte, oben als Punkte 1 – 2 – 3 angezeigt:
 
-1. **Fotografieren** — Beleg mit der Kamera aufnehmen oder aus der Galerie wählen. Mehrere Fotos gehören zu EINEM Beleg (z. B. Vorder- und Rückseite oder mehrere Zettel). Für einen neuen, eigenständigen Beleg auf „Fertig — neuer Beleg" tippen.
-2. **Zuschneiden** — den Rahmen an den Ecken auf den Beleg ziehen; bei Bedarf zuvor begradigen und aufhellen.
-3. **Versenden** — über das native Teilen-Menü an die eigene Mail-Adresse senden (im Teilen-Menü Outlook wählen). Der Betreff `JJMMDD_Spesenbeleg_#` wird automatisch gebildet und groß zum Kopieren angezeigt. Unterstützt ein Gerät kein Teilen mit Datei-Anhang, lädt die App die Bilder herunter — der Betreff steht dann bereits zum Kopieren bereit.
+1. **Fotografieren** — Beleg mit der Kamera aufnehmen oder aus der Galerie wählen. Mehrere Fotos gehören zu EINEM Beleg (z. B. Vorder- und Rückseite oder mehrere Zettel).
+2. **Zuschneiden** — den Rahmen an den Ecken auf den Beleg ziehen; bei Bedarf zuvor begradigen und aufhellen. Über die Auswahl „Qualität" (Hoch/Mittel/Niedrig) lässt sich die Dateigröße des Fotos steuern — Mittel ist voreingestellt und zielt auf ca. 1 MB je Foto.
+3. **Sammlung & Versand** — der fertig zugeschnittene Beleg landet automatisch in der Sammlung. Von dort entweder „Weiteren Beleg erfassen" (zurück zu Schritt 1, Sammlung bleibt erhalten) oder „Alle senden" — dann gehen alle gesammelten Belege gemeinsam als Anhänge einer einzigen Mail über das native Teilen-Menü raus (im Teilen-Menü Outlook wählen, Empfänger selbst eintragen). Der Betreff `JJMMDD_Spesenbeleg_#_XBelege` wird automatisch gebildet und groß zum Kopieren angezeigt. Unterstützt ein Gerät kein Teilen mit Datei-Anhang, lädt die App die Bilder herunter — der Betreff steht dann bereits zum Kopieren bereit. Über „Sammlung verwerfen und neu beginnen" lässt sich die gesamte Sammlung verwerfen.
 
 ## Installation auf dem Smartphone
 
@@ -54,8 +54,9 @@ Die App braucht **keinen Server und kein Backend** — sie läuft vollständig a
 
 | Was | Wo | Bleibt erhalten? |
 |-----|-----|-----------------|
-| Belegfotos | nur im Arbeitsspeicher | Nein — werden nach dem Versand bzw. Verlassen freigegeben |
+| Belegfotos (auch die gesamte Sammlung) | nur im Arbeitsspeicher | Nein — werden nach dem Versand bzw. Verlassen freigegeben |
 | Betreff-Tageszähler (`#`) | localStorage | Ja (nur die laufende Nummer, kein Bild) |
+| Qualitätsstufe (Hoch/Mittel/Niedrig) | localStorage | Ja (nur die Einstellung, kein Bild) |
 | App-Dateien (HTML/CSS/JS) | Service-Worker-Cache | Nein (wird automatisch neu geladen) |
 
 Es werden **keine Belege und keine Bilddaten an einen Server übertragen** — der Versand läuft ausschließlich über das Teilen-Menü des Geräts (z. B. an Outlook).

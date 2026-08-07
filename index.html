@@ -14,7 +14,7 @@
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <!-- ?v=… bei jedem Release mitziehen: neue Adresse = garantiert frische Datei (HTTP-Cache-Buster) -->
-  <link rel="stylesheet" href="css/style.css?v=101">
+  <link rel="stylesheet" href="css/style.css?v=102">
 </head>
 <body>
 
@@ -40,7 +40,7 @@
 <div class="screen active" id="screen-aufnahme">
   <div class="screen-intro">
     <h2>Beleg fotografieren</h2>
-    <p>Mehrere Fotos gehören zu einem Beleg — z.&nbsp;B. Vorder- und Rückseite oder mehrere Zettel. Für einen neuen, eigenständigen Beleg auf „Fertig, neuer Beleg" tippen.</p>
+    <p>Mehrere Fotos gehören zu einem Beleg — z.&nbsp;B. Vorder- und Rückseite oder mehrere Zettel. Nach dem Zuschneiden landet der Beleg in der Sammlung; von dort geht's zum nächsten Beleg oder zum gemeinsamen Versand.</p>
   </div>
 
   <div class="photo-thumbs" id="aufnahme-thumbs"></div>
@@ -92,6 +92,14 @@
       <input type="range" id="crop-brightness" min="-40" max="60" step="1" value="0">
       <span class="crop-control-val" id="crop-brightness-val">0</span>
     </div>
+    <div class="crop-control-row crop-control-row-select">
+      <label for="crop-quality">Qualität</label>
+      <select id="crop-quality">
+        <option value="hoch">Hoch — größere Datei</option>
+        <option value="mittel">Mittel — empfohlen, ca. 1 MB</option>
+        <option value="niedrig">Niedrig — kleine Datei</option>
+      </select>
+    </div>
   </div>
 
   <div class="crop-actions">
@@ -104,8 +112,8 @@
 <!-- ════════ SCREEN 3: VERSENDEN ════════ -->
 <div class="screen" id="screen-versenden">
   <div class="screen-intro">
-    <h2>Beleg versenden</h2>
-    <p>An die eigene Mail-Adresse senden — im Teilen-Menü Outlook wählen.</p>
+    <h2>Sammlung &amp; Versand</h2>
+    <p id="sammlung-summary">Sammlung ist leer.</p>
   </div>
 
   <div class="subject-box">
@@ -114,10 +122,14 @@
     <button class="btn btn-outline btn-sm" id="btn-copy-subject">Betreff kopieren</button>
   </div>
 
-  <div class="photo-thumbs" id="versand-thumbs"></div>
+  <div class="sammlung-list" id="versand-thumbs"></div>
+
+  <button class="btn btn-outline btn-big btn-full" id="btn-add-beleg">
+    <span class="btn-icon">&#43;</span> Weiteren Beleg erfassen
+  </button>
 
   <button class="btn btn-primary btn-big btn-full" id="btn-share">
-    <span class="btn-icon">&#128228;</span> Teilen / An eigene Mail senden
+    <span class="btn-icon">&#128228;</span> Alle senden
   </button>
 
   <!-- Fallback, falls Web-Share mit Dateien nicht verfügbar ist -->
@@ -127,8 +139,8 @@
     <button class="btn btn-outline btn-big btn-full" id="btn-fallback-download">Bild(er) herunterladen</button>
   </div>
 
-  <button class="btn btn-outline btn-big btn-full" id="btn-neuer-beleg" style="margin-top:20px">
-    Fertig — neuer Beleg
+  <button class="btn btn-text" id="btn-neuer-beleg" style="margin-top:20px">
+    Sammlung verwerfen und neu beginnen
   </button>
 </div>
 
@@ -136,9 +148,9 @@
 <div class="toast" id="toast"></div>
 
 <!-- ════════ Scripts ════════ -->
-<script src="js/crop.js?v=101"></script>
-<script src="js/share.js?v=101"></script>
-<script src="js/app.js?v=101"></script>
+<script src="js/crop.js?v=102"></script>
+<script src="js/share.js?v=102"></script>
+<script src="js/app.js?v=102"></script>
 
 </body>
 </html>

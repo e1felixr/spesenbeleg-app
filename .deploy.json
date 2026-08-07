@@ -1,0 +1,12 @@
+{
+  "kind": "static",
+  "build_bat": "",
+  "exe_name": "",
+  "extras": [
+    {
+      "quelle": "README.md",
+      "ziel": "Spesenbeleg-App Installationsanleitung.md"
+    }
+  ],
+  "deploy_target_override": null
+}

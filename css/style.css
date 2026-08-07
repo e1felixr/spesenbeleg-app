@@ -273,6 +273,21 @@ body {
 .crop-control-row input[type=range] { width: 100%; accent-color: var(--primary); height: 32px; }
 .crop-control-val { font-size: .8rem; color: var(--text-sec); text-align: right; }
 
+/* Qualitäts-Auswahl teilt sich die Zeilen-Optik der Schieberegler, aber ohne die dritte
+   Wert-Spalte (das Dropdown zeigt den gewählten Wert bereits selbst an). */
+.crop-control-row-select { grid-template-columns: 90px 1fr; }
+.crop-control-row-select select {
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: .85rem;
+  color: var(--text);
+  background: #fff;
+}
+
 .crop-actions {
   display: flex;
   gap: 10px;
@@ -308,6 +323,36 @@ body {
   border-radius: var(--radius);
   border: 1px dashed var(--primary);
 }
+
+/* Sammlung: ein Karten-Block je Beleg (kann mehrere Fotos enthalten), Karten untereinander */
+.sammlung-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+.beleg-group {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px;
+}
+.beleg-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.beleg-group-del {
+  background: none;
+  border: none;
+  color: var(--text-sec);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  min-width: 40px;
+  min-height: 32px;
+}
+.beleg-group-thumbs { margin-bottom: 0; }
 
 .fallback-box {
   background: #fff8e1;

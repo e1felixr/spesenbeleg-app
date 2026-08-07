@@ -7,6 +7,18 @@ const CropTool = (() => {
   const MIN_CROP_FRACTION = 0.12;  // kleinste erlaubte Rahmengröße (Anteil der Bildkante)
   const DEFAULT_CROP = { x0: 0.06, y0: 0.06, x1: 0.94, y1: 0.94 };
 
+  // Qualitätsstufen für den JPEG-Export: Zielobergrenze (Deckel) je Stufe + Start-Qualität.
+  // 'mittel' ist Default und trifft für typische Beleg-Fotos (viel heller Papier-Untergrund,
+  // wenig Detailrauschen) im Regelfall ~1 MB, ohne dass die Dimensions-Absenkung greifen muss.
+  const QUALITY_LEVELS = {
+    hoch:    { cap: 1.8 * 1024 * 1024, startQuality: 0.92 },
+    mittel:  { cap: 1.2 * 1024 * 1024, startQuality: 0.88 },
+    niedrig: { cap: 0.6 * 1024 * 1024, startQuality: 0.75 },
+  };
+  const MIN_QUALITY = 0.5;         // unter diese JPEG-Qualität wird nicht gegangen (sichtbare Artefakte)
+  const MIN_WORK_DIM = 500;        // Sicherheits-Untergrenze für die Kantenlänge (Lesbarkeit des Belegs)
+  const MAX_ATTEMPTS = 10;         // Deckel gegen Endlos-Iteration bei extremen Bildern
+
   let wrapEl, canvasEl, rectEl, ctx;
   let originalCanvas = null;   // Quellbild, bereits auf MAX_SRC_DIM gekappt
   let baseCanvas = null;       // rotiert + aufgehellt, volle Arbeitsauflösung
@@ -170,8 +182,13 @@ const CropTool = (() => {
 
   function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-  // ── Export: zugeschnittenes Bild als JPEG-Blob (volle Arbeitsauflösung) ──
-  function getCroppedBlob(quality = 0.9) {
+  // ── Export: zugeschnittenes Bild als JPEG-Blob, iterativ auf eine Zielgröße gedrückt ──
+  // qualityLevel: 'hoch' | 'mittel' (Default) | 'niedrig' - siehe QUALITY_LEVELS oben.
+  // Strategie: zuerst JPEG-Qualität in Schritten absenken (bis MIN_QUALITY), reicht das nicht,
+  // zusätzlich die Kantenlänge in 15%-Schritten verkleinern (bis MIN_WORK_DIM) - robust gegenüber
+  // sehr detailreichen/dunklen Fotos, ohne kleine helle Belege unnötig klein zu rechnen.
+  function getCroppedBlob(qualityLevel = 'mittel') {
+    const cfg = QUALITY_LEVELS[qualityLevel] || QUALITY_LEVELS.mittel;
     return new Promise((resolve) => {
       // Bild evtl. noch nicht dekodiert (sehr schneller Tap) -> null, Aufrufer fängt ab
       if (!baseCanvas) { resolve(null); return; }
@@ -180,11 +197,34 @@ const CropTool = (() => {
       const sy = Math.round(crop.y0 * bh);
       const sw = Math.max(1, Math.round((crop.x1 - crop.x0) * bw));
       const sh = Math.max(1, Math.round((crop.y1 - crop.y0) * bh));
-      const out = document.createElement('canvas');
-      out.width = sw;
-      out.height = sh;
-      out.getContext('2d').drawImage(baseCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
-      out.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+
+      const renderAt = (w, h, q) => new Promise((res) => {
+        const out = document.createElement('canvas');
+        out.width = w;
+        out.height = h;
+        out.getContext('2d').drawImage(baseCanvas, sx, sy, sw, sh, 0, 0, w, h);
+        out.toBlob((blob) => res(blob), 'image/jpeg', q);
+      });
+
+      (async () => {
+        let workW = sw, workH = sh;
+        let quality = cfg.startQuality;
+        let blob = await renderAt(workW, workH, quality);
+        let attempts = 0;
+        while (blob && blob.size > cfg.cap && attempts < MAX_ATTEMPTS) {
+          attempts++;
+          if (quality > MIN_QUALITY) {
+            quality = Math.max(MIN_QUALITY, quality - 0.08);
+          } else if (Math.max(workW, workH) > MIN_WORK_DIM) {
+            workW = Math.max(MIN_WORK_DIM, Math.round(workW * 0.85));
+            workH = Math.max(MIN_WORK_DIM, Math.round(workH * 0.85));
+          } else {
+            break; // Untergrenze erreicht - Ergebnis akzeptieren, auch wenn der Deckel knapp überschritten bleibt
+          }
+          blob = await renderAt(workW, workH, quality);
+        }
+        resolve(blob);
+      })();
     });
   }
 
