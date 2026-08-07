@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#66b32f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate, nositelinkssearchbox">
+  <meta name="format-detection" content="telephone=no, date=no, address=no">
+  <title>E1 Spesenbeleg</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <!-- ?v=… bei jedem Release mitziehen: neue Adresse = garantiert frische Datei (HTTP-Cache-Buster) -->
+  <link rel="stylesheet" href="css/style.css?v=101">
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<div class="header" id="header">
+  <button class="btn-back" id="btn-back" onclick="goBack()" style="display:none">&#8592;</button>
+  <div class="header-text">
+    <span class="header-main">E1 Spesenbeleg <span id="header-version"></span></span>
+    <span class="header-sub" id="header-step-label"></span>
+  </div>
+</div>
+
+<!-- ════════ SCHRITT-ANZEIGE ════════ -->
+<div class="step-indicator" id="step-indicator">
+  <div class="step-dot active" id="step-dot-1">1</div>
+  <div class="step-line"></div>
+  <div class="step-dot" id="step-dot-2">2</div>
+  <div class="step-line"></div>
+  <div class="step-dot" id="step-dot-3">3</div>
+</div>
+
+<!-- ════════ SCREEN 1: AUFNAHME ════════ -->
+<div class="screen active" id="screen-aufnahme">
+  <div class="screen-intro">
+    <h2>Beleg fotografieren</h2>
+    <p>Mehrere Fotos gehören zu einem Beleg — z.&nbsp;B. Vorder- und Rückseite oder mehrere Zettel. Für einen neuen, eigenständigen Beleg auf „Fertig, neuer Beleg" tippen.</p>
+  </div>
+
+  <div class="photo-thumbs" id="aufnahme-thumbs"></div>
+
+  <div class="aufnahme-actions">
+    <label class="btn btn-primary btn-big" for="photo-input-camera">
+      <span class="btn-icon">&#128247;</span> Foto aufnehmen
+    </label>
+    <input type="file" id="photo-input-camera" accept="image/*" capture="environment" style="display:none">
+
+    <label class="btn btn-outline btn-big" for="photo-input-gallery">
+      <span class="btn-icon">&#128193;</span> Aus Galerie wählen
+    </label>
+    <input type="file" id="photo-input-gallery" accept="image/*" multiple style="display:none">
+  </div>
+
+  <button class="btn btn-accent btn-big btn-full" id="btn-weiter-zuschnitt" disabled>
+    Weiter zum Zuschneiden &rarr;
+  </button>
+</div>
+
+<!-- ════════ SCREEN 2: ZUSCHNEIDEN ════════ -->
+<div class="screen" id="screen-zuschneiden">
+  <div class="screen-intro">
+    <h2>Beleg zuschneiden</h2>
+    <p class="crop-counter" id="crop-counter">Foto 1 von 1</p>
+  </div>
+
+  <div class="crop-wrap" id="crop-wrap">
+    <canvas id="crop-canvas"></canvas>
+    <div class="crop-rect" id="crop-rect">
+      <div class="crop-handle crop-handle-nw" data-h="nw"></div>
+      <div class="crop-handle crop-handle-ne" data-h="ne"></div>
+      <div class="crop-handle crop-handle-sw" data-h="sw"></div>
+      <div class="crop-handle crop-handle-se" data-h="se"></div>
+    </div>
+  </div>
+
+  <div class="crop-hint">Rahmen an den Ecken ziehen, um zuzuschneiden. Zuerst begradigen/aufhellen, danach zuschneiden.</div>
+
+  <div class="crop-controls">
+    <div class="crop-control-row">
+      <label for="crop-rotate">Begradigen</label>
+      <input type="range" id="crop-rotate" min="-15" max="15" step="0.5" value="0">
+      <span class="crop-control-val" id="crop-rotate-val">0°</span>
+    </div>
+    <div class="crop-control-row">
+      <label for="crop-brightness">Aufhellen</label>
+      <input type="range" id="crop-brightness" min="-40" max="60" step="1" value="0">
+      <span class="crop-control-val" id="crop-brightness-val">0</span>
+    </div>
+  </div>
+
+  <div class="crop-actions">
+    <button class="btn btn-outline" id="btn-crop-zuruecksetzen">Zurücksetzen</button>
+    <button class="btn btn-primary btn-big" id="btn-crop-uebernehmen">Übernehmen &rarr;</button>
+  </div>
+  <button class="btn btn-text" id="btn-crop-zurueck" style="display:none">&larr; Vorheriges Foto erneut zuschneiden</button>
+</div>
+
+<!-- ════════ SCREEN 3: VERSENDEN ════════ -->
+<div class="screen" id="screen-versenden">
+  <div class="screen-intro">
+    <h2>Beleg versenden</h2>
+    <p>An die eigene Mail-Adresse senden — im Teilen-Menü Outlook wählen.</p>
+  </div>
+
+  <div class="subject-box">
+    <div class="subject-label">Betreff (zum Kopieren)</div>
+    <div class="subject-display" id="subject-display"></div>
+    <button class="btn btn-outline btn-sm" id="btn-copy-subject">Betreff kopieren</button>
+  </div>
+
+  <div class="photo-thumbs" id="versand-thumbs"></div>
+
+  <button class="btn btn-primary btn-big btn-full" id="btn-share">
+    <span class="btn-icon">&#128228;</span> Teilen / An eigene Mail senden
+  </button>
+
+  <!-- Fallback, falls Web-Share mit Dateien nicht verfügbar ist -->
+  <div class="fallback-box" id="fallback-box" style="display:none">
+    <div class="fallback-title">Teilen mit Bild-Anhang wird auf diesem Gerät nicht unterstützt</div>
+    <p>Bild(er) herunterladen und danach selbst per Mail an dich schicken. Betreff oben ist bereits zum Kopieren bereit.</p>
+    <button class="btn btn-outline btn-big btn-full" id="btn-fallback-download">Bild(er) herunterladen</button>
+  </div>
+
+  <button class="btn btn-outline btn-big btn-full" id="btn-neuer-beleg" style="margin-top:20px">
+    Fertig — neuer Beleg
+  </button>
+</div>
+
+<!-- ════════ Toast ════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════ Scripts ════════ -->
+<script src="js/crop.js?v=101"></script>
+<script src="js/share.js?v=101"></script>
+<script src="js/app.js?v=101"></script>
+
+</body>
+</html>
