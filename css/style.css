@@ -336,6 +336,12 @@ body {
   color: var(--text-sec);
   margin-bottom: 10px;
 }
+.skip-hint {
+  font-size: .8rem;
+  color: var(--text-sec);
+  margin-top: 6px;
+  text-align: center;
+}
 .sammlung-hint {
   font-size: .82rem;
   color: var(--text-sec);

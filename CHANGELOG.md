@@ -1,5 +1,10 @@
 # Changelog — E1 Spesenbeleg-App
 
+## v0.4.0 (07.09.2026, 09:41 Uhr)
+
+### Neu
+- **„Ohne Zuschnitt übernehmen"** — Unterwegs fehlt oft die Ruhe zum Rahmenziehen. Der neue Knopf unter „Weiter zum Zuschneiden" nimmt die Fotos, wie sie sind, und legt sie unmittelbar in die Sammlung. Zurechtgerückt wird später — hier über das Stift-Symbol in der Sammlung, oder am Rechner in der Dokumentenverwaltung, die den Beleg ebenfalls zuschneiden, drehen und aufhellen kann. Die gewählte Bildqualität gilt weiterhin: die Mail muss durch die Anhang-Grenze des Postfachs passen, und volle Kamera-Auflösung bringt bei einem Papierbeleg keinen lesbaren Gewinn.
+
 ## v0.3.0 (07.09.2026, 09:10 Uhr)
 
 ### Neu

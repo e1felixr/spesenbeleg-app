@@ -1,6 +1,6 @@
 // app.js - Screen-Flow (Aufnahme -> Zuschneiden -> Versenden), Betreff-Bildung, Foto-Handling
 
-const APP_VERSION = 'v0.3.0';
+const APP_VERSION = 'v0.4.0';
 
 // ── Globales Fehlernetz (Muster aus 260225): fängt unbehandelte Fehler ab, statt stumm zu bleiben ──
 window.addEventListener('error', (e) => {
@@ -121,7 +121,9 @@ function renderAufnahmeThumbs() {
         <button class="thumb-del" data-id="${p.id}" title="Entfernen">&times;</button>
       </div>`).join('');
   }
-  document.getElementById('btn-weiter-zuschnitt').disabled = capturedPhotos.length === 0;
+  const leer = capturedPhotos.length === 0;
+  document.getElementById('btn-weiter-zuschnitt').disabled = leer;
+  document.getElementById('btn-ohne-zuschnitt').disabled = leer;
 }
 
 function addPhotoFromFile(file) {
@@ -193,6 +195,46 @@ function startCropFlow() {
   cropIndex = 0;
   showScreen(1);
   loadCropStep();
+}
+
+// ── Weg ohne Zuschnitt ──
+// Unterwegs fehlt oft die Ruhe zum Rahmenziehen. Dieser Weg übernimmt jedes
+// Foto in voller Fläche direkt in die Sammlung; zurechtgerückt wird später —
+// am Handy über das Stift-Symbol in der Sammlung, oder am Rechner in der
+// Dokumentenverwaltung. Die Qualitätsstufe gilt weiterhin: die Mail muss
+// durch die Anhang-Grenze des Postfachs passen.
+const VOLLBILD_ZUSCHNITT = { rotation: 0, brightness: 0, crop: { x0: 0, y0: 0, x1: 1, y1: 1 } };
+
+async function skipCropFlow() {
+  if (capturedPhotos.length === 0) return;
+  const btn = document.getElementById('btn-ohne-zuschnitt');
+  btn.disabled = true;
+  editContext = null;
+  const ergebnisse = [];
+  try {
+    showToast('Fotos werden übernommen …', 4000);
+    for (const p of capturedPhotos) {
+      await CropTool.loadFromDataUrl(p.dataUrl, VOLLBILD_ZUSCHNITT);
+      const blob = await CropTool.getCroppedBlob(getQualityLevel());
+      if (!blob) continue;
+      ergebnisse.push({
+        id: p.id, blob, file: p.file || null, cropState: CropTool.getState(),
+      });
+    }
+  } finally {
+    btn.disabled = false;
+  }
+  if (ergebnisse.length === 0) {
+    showToast('Fotos konnten nicht übernommen werden', 4000);
+    return;
+  }
+  belegCollection.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    photos: ergebnisse,
+  });
+  resetCurrentBelegCapture();
+  enterSammlung();
+  showToast('Ohne Zuschnitt übernommen — nachbessern geht jederzeit');
 }
 
 // ── Nachbearbeiten: ein Foto aus der Sammlung erneut zuschneiden ──
@@ -498,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (del) removePhoto(del.dataset.id);
   });
   document.getElementById('btn-weiter-zuschnitt').addEventListener('click', startCropFlow);
+  document.getElementById('btn-ohne-zuschnitt').addEventListener('click', skipCropFlow);
 
   document.getElementById('crop-rotate').addEventListener('input', (e) => {
     const v = Number(e.target.value);
