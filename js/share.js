@@ -13,6 +13,14 @@ const ShareTool = (() => {
   //   'aborted'     → Nutzer hat das Teilen-Menü selbst abgebrochen (kein Fallback nötig)
   //   'unsupported' → Web-Share (mit Dateien) auf diesem Gerät/Browser nicht verfügbar
   //   'failed'      → Teilen-Versuch warf einen anderen Fehler
+  // Der Betreff wird BEIDE Wege mitgegeben:
+  //   title → Android EXTRA_SUBJECT, das die Mail-Apps als Betreff übernehmen
+  //   text  → EXTRA_TEXT (Mail-Text); nimmt eine App den Betreff nicht an,
+  //           steht das Stichwort „Spesenbeleg" wenigstens im Text und geht
+  //           beim Einfügen von Hand nicht verloren.
+  // Ohne dieses Stichwort im Betreff findet die Dokumentenverwaltung die Mail
+  // später nicht — darum ruft app.js den Betreff zusätzlich in die
+  // Zwischenablage, ehe das Teilen-Menü aufgeht.
   async function shareFiles(files, subject) {
     if (!canShareFiles(files)) return 'unsupported';
     try {

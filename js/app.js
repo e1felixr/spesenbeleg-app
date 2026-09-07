@@ -1,6 +1,6 @@
 // app.js - Screen-Flow (Aufnahme -> Zuschneiden -> Versenden), Betreff-Bildung, Foto-Handling
 
-const APP_VERSION = 'v0.2.0';
+const APP_VERSION = 'v0.3.0';
 
 // ── Globales Fehlernetz (Muster aus 260225): fängt unbehandelte Fehler ab, statt stumm zu bleiben ──
 window.addEventListener('error', (e) => {
@@ -15,10 +15,20 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 // ── Zustand (bewusst nur im Speicher - v1 braucht keine dauerhafte Beleg-Speicherung) ──
-let capturedPhotos = [];   // [{ id, dataUrl }] - Fotos des GERADE erfassten Belegs
-let croppedResults = [];   // [{ id, blob }] - parallel zu capturedPhotos, nach Zuschnitt befüllt
+// capturedPhotos: [{ id, dataUrl, file }] - Fotos des GERADE erfassten Belegs.
+// `file` ist die Original-Datei aus dem Datei-/Kamera-Feld; sie wandert mit in die
+// Sammlung, damit ein Foto SPÄTER noch einmal zugeschnitten werden kann. Bewusst die
+// File-Referenz und nicht die dataUrl: die base64-Zeichenkette läge dauerhaft im
+// Speicher (rund ein Drittel größer als die Datei), die File-Referenz nicht.
+let capturedPhotos = [];
+let croppedResults = [];   // [{ id, blob, file, cropState }] - parallel zu capturedPhotos
 let cropIndex = 0;
-let belegCollection = [];  // Sammlung fertig zugeschnittener Belege: [{ id, photos: [{id, blob}] }]
+// Sammlung fertig zugeschnittener Belege: [{ id, photos: [{ id, blob, file, cropState }] }]
+let belegCollection = [];
+// Nachbearbeiten: zeigt auf das Foto in der Sammlung, das gerade erneut im
+// Zuschnitt-Screen liegt ({ belegId, photoId }) - null = regulärer Erfassungs-Durchlauf.
+let editContext = null;
+let editSourceUrl = null;  // Object-URL der Quelldatei, nach dem Laden freigegeben
 let subjectCommitted = false;
 let subjectBase = '';      // JJMMDD_Spesenbeleg_# - einmal je Sammlung vergeben (Tageszähler)
 let currentSubject = '';   // subjectBase + Beleg-Anzahl - was tatsächlich angezeigt/geteilt wird
@@ -63,7 +73,10 @@ function showScreen(index) {
 }
 
 function goBack() {
-  if (currentScreenIndex === 1) {
+  if (currentScreenIndex === 1 && editContext) {
+    // Nachbearbeitung abbrechen - das Foto in der Sammlung bleibt, wie es war.
+    cancelPhotoEdit();
+  } else if (currentScreenIndex === 1) {
     // Zurück zur Aufnahme (Fotos bleiben erhalten; "Weiter" startet den Zuschnitt neu)
     showScreen(0);
   } else if (currentScreenIndex === 2) {
@@ -117,7 +130,8 @@ function addPhotoFromFile(file) {
     reader.onload = () => {
       capturedPhotos.push({
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        dataUrl: reader.result
+        dataUrl: reader.result,
+        file   // Original behalten - Grundlage für späteres Nachbearbeiten
       });
       renderAufnahmeThumbs();
       resolve();
@@ -150,23 +164,87 @@ function resetCurrentBelegCapture() {
 }
 
 // ── Screen 2: Zuschneiden ──
+
+// Setzt die beiden Schieberegler auf einen Zustand (oder auf null zurück).
+function setCropSliders(state) {
+  const rot = state && Number.isFinite(state.rotation) ? state.rotation : 0;
+  const hell = state && Number.isFinite(state.brightness) ? state.brightness : 0;
+  document.getElementById('crop-rotate').value = rot;
+  document.getElementById('crop-brightness').value = hell;
+  document.getElementById('crop-rotate-val').textContent = rot + '°';
+  document.getElementById('crop-brightness-val').textContent = hell;
+}
+
 function loadCropStep() {
   const total = capturedPhotos.length;
   document.getElementById('crop-counter').textContent = `Foto ${cropIndex + 1} von ${total}`;
   document.getElementById('btn-crop-zurueck').style.display = cropIndex > 0 ? 'block' : 'none';
-  document.getElementById('crop-rotate').value = 0;
-  document.getElementById('crop-brightness').value = 0;
-  document.getElementById('crop-rotate-val').textContent = '0°';
-  document.getElementById('crop-brightness-val').textContent = '0';
-  CropTool.loadFromDataUrl(capturedPhotos[cropIndex].dataUrl);
+  // Beim erneuten Durchlauf (Nutzer ging im Zuschnitt einen Schritt zurück) den
+  // zuletzt gewählten Zustand wieder herstellen statt stumpf auf 0 zu setzen.
+  const zustand = croppedResults[cropIndex] ? croppedResults[cropIndex].cropState : null;
+  setCropSliders(zustand);
+  CropTool.loadFromDataUrl(capturedPhotos[cropIndex].dataUrl, zustand);
 }
 
 function startCropFlow() {
   if (capturedPhotos.length === 0) return;
+  editContext = null;
   croppedResults = [];
   cropIndex = 0;
   showScreen(1);
   loadCropStep();
+}
+
+// ── Nachbearbeiten: ein Foto aus der Sammlung erneut zuschneiden ──
+function findSammlungPhoto(belegId, photoId) {
+  const beleg = belegCollection.find(b => b.id === belegId);
+  if (!beleg) return null;
+  const index = beleg.photos.findIndex(p => p.id === photoId);
+  if (index < 0) return null;
+  return { beleg, photo: beleg.photos[index], index };
+}
+
+async function startPhotoEdit(belegId, photoId) {
+  const treffer = findSammlungPhoto(belegId, photoId);
+  if (!treffer) return;
+  if (!treffer.photo.file) {
+    showToast('Dieses Foto lässt sich nicht mehr anpassen — bitte neu aufnehmen', 4000);
+    return;
+  }
+  const belegNr = belegCollection.indexOf(treffer.beleg) + 1;
+  editContext = { belegId, photoId };
+  showScreen(1);
+  document.getElementById('crop-counter').textContent =
+    `Beleg ${belegNr}, Foto ${treffer.index + 1} — anpassen`;
+  document.getElementById('btn-crop-zurueck').style.display = 'none';
+  setCropSliders(treffer.photo.cropState);
+  freigebenEditSource();
+  editSourceUrl = URL.createObjectURL(treffer.photo.file);
+  try {
+    await CropTool.loadFromDataUrl(editSourceUrl, treffer.photo.cropState);
+  } catch {
+    showToast('Foto konnte nicht geladen werden', 4000);
+    cancelPhotoEdit();
+    return;
+  } finally {
+    // Der Object-URL wird nur zum Dekodieren gebraucht; das Bild liegt danach als
+    // Canvas im CropTool. Nicht freigeben hieße: Blob bleibt bis zum Neuladen offen.
+    freigebenEditSource();
+  }
+}
+
+function freigebenEditSource() {
+  if (editSourceUrl) {
+    URL.revokeObjectURL(editSourceUrl);
+    editSourceUrl = null;
+  }
+}
+
+function cancelPhotoEdit() {
+  editContext = null;
+  freigebenEditSource();
+  renderSammlungThumbs();
+  showScreen(2);
 }
 
 async function confirmCrop() {
@@ -175,7 +253,27 @@ async function confirmCrop() {
   try {
     const blob = await CropTool.getCroppedBlob(getQualityLevel());
     if (!blob) { showToast('Bild noch nicht bereit — kurz warten und erneut tippen', 3000); return; }
-    croppedResults[cropIndex] = { id: capturedPhotos[cropIndex].id, blob };
+
+    // Nachbearbeitung: Ergebnis an Ort und Stelle ersetzen, zurück zur Sammlung.
+    if (editContext) {
+      const treffer = findSammlungPhoto(editContext.belegId, editContext.photoId);
+      if (treffer) {
+        treffer.photo.blob = blob;
+        treffer.photo.cropState = CropTool.getState();
+      }
+      editContext = null;
+      renderSammlungThumbs();
+      showScreen(2);
+      showToast('Foto angepasst');
+      return;
+    }
+
+    croppedResults[cropIndex] = {
+      id: capturedPhotos[cropIndex].id,
+      blob,
+      file: capturedPhotos[cropIndex].file || null,
+      cropState: CropTool.getState(),
+    };
     cropIndex++;
     if (cropIndex < capturedPhotos.length) {
       loadCropStep();
@@ -207,10 +305,16 @@ function renderSammlungThumbs() {
     wrap.innerHTML = '<div class="empty-hint">Noch kein Beleg in der Sammlung.</div>';
   } else {
     wrap.innerHTML = belegCollection.map((beleg, gi) => {
-      const thumbsHtml = beleg.photos.map((p) => {
+      const thumbsHtml = beleg.photos.map((p, pi) => {
         const url = URL.createObjectURL(p.blob);
         sammlungThumbUrls.push(url);
-        return `<div class="photo-thumb"><img src="${url}" alt="Beleg ${gi + 1}"></div>`;
+        // „Anpassen" nur, wenn die Originaldatei noch vorliegt (sie ist die
+        // Grundlage für einen erneuten Zuschnitt).
+        const editBtn = p.file
+          ? `<button class="thumb-edit" data-beleg="${beleg.id}" data-photo="${p.id}"
+                     title="Foto anpassen" aria-label="Foto ${pi + 1} anpassen">&#9998;</button>`
+          : '';
+        return `<div class="photo-thumb"><img src="${url}" alt="Beleg ${gi + 1}">${editBtn}</div>`;
       }).join('');
       const countLabel = beleg.photos.length > 1 ? ` (${beleg.photos.length} Fotos)` : '';
       return `
@@ -276,6 +380,19 @@ function copySubject() {
   }
 }
 
+// Betreff still in die Zwischenablage legen (ohne Toast) - Sicherheitsnetz vor dem
+// Teilen: übernimmt die gewählte Mail-App den mitgegebenen Betreff nicht, lässt er
+// sich mit einem Tipp einfügen. Ohne das Stichwort „Spesenbeleg" im Betreff findet
+// die Dokumentenverwaltung die Mail später nicht.
+function copySubjectSilently() {
+  const text = currentSubject;
+  if (!text) return Promise.resolve(false);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(() => true, () => false);
+  }
+  return Promise.resolve(false);
+}
+
 function fallbackCopy(text) {
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -303,13 +420,23 @@ async function doShare() {
     let n = 1;
     belegCollection.forEach(beleg => {
       beleg.photos.forEach(p => {
-        files.push(new File([p.blob], `Spesenbeleg_${n}.jpg`, { type: 'image/jpeg' }));
+        // Dateiname trägt den Betreff mit - so ist auch am Anhang erkennbar,
+        // wozu das Bild gehört, wenn die Mail von Hand nachbearbeitet wird.
+        files.push(new File([p.blob], `${currentSubject}_${n}.jpg`, { type: 'image/jpeg' }));
         n++;
       });
     });
+    // Vor dem Teilen-Menü, nicht danach: der Klick des Nutzers ist noch „frisch",
+    // nur dann lässt der Browser den Zugriff auf die Zwischenablage zu.
+    const kopiert = await copySubjectSilently();
     const result = await ShareTool.shareFiles(files, currentSubject);
     if (result === 'shared') {
-      showToast('Gesendet — Sammlung geleert');
+      showToast(
+        kopiert
+          ? 'Übergeben — Betreff prüfen, er liegt zum Einfügen bereit'
+          : `Übergeben — Betreff muss lauten: ${currentSubject}`,
+        6000,
+      );
       discardEverything();
       return;
     }
@@ -344,6 +471,8 @@ function downloadFallbackImages() {
 // Vollständiger Reset: aktuelle Erfassung + gesamte Sammlung + Betreff/Zähler-Vergabe.
 // Aufgerufen nach erfolgreichem "Alle senden" sowie über "Sammlung verwerfen und neu beginnen".
 function discardEverything() {
+  editContext = null;
+  freigebenEditSource();
   resetCurrentBelegCapture();
   sammlungThumbUrls.forEach(u => URL.revokeObjectURL(u));
   sammlungThumbUrls = [];
@@ -400,6 +529,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-share').addEventListener('click', doShare);
   document.getElementById('btn-fallback-download').addEventListener('click', downloadFallbackImages);
   document.getElementById('versand-thumbs').addEventListener('click', (e) => {
+    const edit = e.target.closest('.thumb-edit');
+    if (edit) { startPhotoEdit(edit.dataset.beleg, edit.dataset.photo); return; }
     const del = e.target.closest('.beleg-group-del');
     if (del) removeBelegFromCollection(del.dataset.id);
   });

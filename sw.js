@@ -1,5 +1,5 @@
 // sw.js - Service Worker für Offline-Fähigkeit (E1 Spesenbeleg)
-const CACHE_NAME = 'e1-spesenbeleg-v2';
+const CACHE_NAME = 'e1-spesenbeleg-v3';
 const ASSETS = [
   './',
   './index.html',

@@ -207,6 +207,25 @@ body {
   align-items: center;
   justify-content: center;
 }
+/* „Anpassen" in der Sammlung — gleiche Rundmarke wie thumb-del, aber unten
+   rechts und in E1-Grün, damit die beiden Aktionen nicht zu verwechseln sind. */
+.photo-thumb .thumb-edit {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* ── Zuschneiden-Screen ── */
 .crop-counter { font-weight: 600; color: var(--primary-dark); }
@@ -311,6 +330,16 @@ body {
   letter-spacing: .4px;
   color: var(--text-sec);
   margin-bottom: 6px;
+}
+.subject-warn {
+  font-size: .82rem;
+  color: var(--text-sec);
+  margin-bottom: 10px;
+}
+.sammlung-hint {
+  font-size: .82rem;
+  color: var(--text-sec);
+  margin-bottom: 8px;
 }
 .subject-display {
   font-size: 1.4rem;

@@ -1,5 +1,16 @@
 # Changelog — E1 Spesenbeleg-App
 
+## v0.3.0 (07.09.2026, 09:10 Uhr)
+
+### Neu
+- **Fotos lassen sich nach dem Zuschneiden erneut anpassen** — Bisher war ein Zuschnitt endgültig: wer den Rahmen zu eng gesetzt oder zu stark aufgehellt hatte, musste den Beleg entfernen und neu fotografieren. Jetzt trägt jedes Foto in der Sammlung unten rechts ein grünes Stift-Symbol; ein Tipp darauf öffnet es wieder im Zuschnitt-Screen — und zwar genau so, wie man es verlassen hat (Rahmen, Begradigung, Aufhellung sind vorbelegt). „Übernehmen" ersetzt das Bild an Ort und Stelle, der Zurück-Pfeil verwirft die Änderung. Auch innerhalb eines laufenden Zuschnitt-Durchgangs merkt sich „Vorheriges Foto erneut zuschneiden" nun die zuletzt gewählten Einstellungen.
+
+### Verbessert
+- **Der Betreff geht beim Versand nicht mehr verloren** — Ohne das Stichwort „Spesenbeleg" im Betreff findet die Dokumentenverwaltung die Mail später nicht. Der Betreff wird dem Teilen-Menü weiterhin mitgegeben und jetzt zusätzlich automatisch in die Zwischenablage gelegt, ehe es aufgeht: übernimmt das Mail-Programm ihn nicht selbst, genügt ein Einfügen. Ein Hinweis über dem Betreff erklärt das, und die Anhänge tragen den Betreff nun im Dateinamen.
+
+### Intern
+- Die Originaldatei jedes Fotos bleibt als `File`-Referenz an der Sammlung hängen (Grundlage des Nachbearbeitens) — bewusst nicht als base64-`dataUrl`, die dauerhaft im Speicher läge. `CropTool` bekommt `getState()` und nimmt in `loadFromDataUrl` einen Zustand entgegen; der Object-URL der Quelldatei wird nach dem Dekodieren sofort freigegeben. Cache-Marken mitgezogen (`?v=103`, `e1-spesenbeleg-v3`).
+
 ## v0.2.0 (07.08.2026, 13:25 Uhr)
 
 ### Neu

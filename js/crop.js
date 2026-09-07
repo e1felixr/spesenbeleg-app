@@ -40,20 +40,29 @@ const CropTool = (() => {
     });
   }
 
-  function loadFromDataUrl(dataUrl) {
+  // state (optional): { rotation, brightness, crop } aus getState() — damit ein
+  // bereits zugeschnittenes Foto genau so wieder aufgeht, wie es zuletzt stand
+  // (Nachbearbeiten aus der Sammlung heraus). Ohne state: Ausgangszustand.
+  function loadFromDataUrl(dataUrl, state) {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
         originalCanvas = capToMaxDim(img, MAX_SRC_DIM);
-        rotation = 0;
-        brightness = 0;
-        crop = { ...DEFAULT_CROP };
+        rotation = state && Number.isFinite(state.rotation) ? state.rotation : 0;
+        brightness = state && Number.isFinite(state.brightness) ? state.brightness : 0;
+        crop = state && state.crop ? { ...state.crop } : { ...DEFAULT_CROP };
         rebuildBase();
         resolve();
       };
       img.onerror = reject;
       img.src = dataUrl;
     });
+  }
+
+  // Momentaufnahme der Einstellungen — wird je Foto mitgeführt, damit das
+  // Nachbearbeiten dort ansetzt, wo der Nutzer aufgehört hat.
+  function getState() {
+    return { rotation, brightness, crop: { ...crop } };
   }
 
   // Bild auf maxDim (längste Seite) kappen; Ergebnis als Canvas, damit wiederholtes
@@ -228,5 +237,8 @@ const CropTool = (() => {
     });
   }
 
-  return { init, loadFromDataUrl, setRotation, setBrightness, resetAll, getCroppedBlob };
+  return {
+    init, loadFromDataUrl, getState,
+    setRotation, setBrightness, resetAll, getCroppedBlob,
+  };
 })();
