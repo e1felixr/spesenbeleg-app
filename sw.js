@@ -1,5 +1,5 @@
-// sw.js - Service Worker für Offline-Fähigkeit (E1 Spesenbeleg)
-const CACHE_NAME = 'e1-spesenbeleg-v4';
+// sw.js - Service Worker für Offline-Fähigkeit (Belegfoto)
+const CACHE_NAME = 'belegfoto-v5';
 const ASSETS = [
   './',
   './index.html',

@@ -18,7 +18,7 @@ const ShareTool = (() => {
   //   text  → EXTRA_TEXT (Mail-Text); nimmt eine App den Betreff nicht an,
   //           steht das Stichwort „Spesenbeleg" wenigstens im Text und geht
   //           beim Einfügen von Hand nicht verloren.
-  // Ohne dieses Stichwort im Betreff findet die Dokumentenverwaltung die Mail
+  // Ohne dieses Stichwort im Betreff findet das Abrechnungs-Programm die Mail
   // später nicht — darum ruft app.js den Betreff zusätzlich in die
   // Zwischenablage, ehe das Teilen-Menü aufgeht.
   async function shareFiles(files, subject) {

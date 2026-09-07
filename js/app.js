@@ -1,6 +1,6 @@
 // app.js - Screen-Flow (Aufnahme -> Zuschneiden -> Versenden), Betreff-Bildung, Foto-Handling
 
-const APP_VERSION = 'v0.4.0';
+const APP_VERSION = 'v0.4.1';
 
 // ── Globales Fehlernetz (Muster aus 260225): fängt unbehandelte Fehler ab, statt stumm zu bleiben ──
 window.addEventListener('error', (e) => {
@@ -201,7 +201,7 @@ function startCropFlow() {
 // Unterwegs fehlt oft die Ruhe zum Rahmenziehen. Dieser Weg übernimmt jedes
 // Foto in voller Fläche direkt in die Sammlung; zurechtgerückt wird später —
 // am Handy über das Stift-Symbol in der Sammlung, oder am Rechner in der
-// Dokumentenverwaltung. Die Qualitätsstufe gilt weiterhin: die Mail muss
+// am Rechner. Die Qualitätsstufe gilt weiterhin: die Mail muss
 // durch die Anhang-Grenze des Postfachs passen.
 const VOLLBILD_ZUSCHNITT = { rotation: 0, brightness: 0, crop: { x0: 0, y0: 0, x1: 1, y1: 1 } };
 
@@ -425,7 +425,7 @@ function copySubject() {
 // Betreff still in die Zwischenablage legen (ohne Toast) - Sicherheitsnetz vor dem
 // Teilen: übernimmt die gewählte Mail-App den mitgegebenen Betreff nicht, lässt er
 // sich mit einem Tipp einfügen. Ohne das Stichwort „Spesenbeleg" im Betreff findet
-// die Dokumentenverwaltung die Mail später nicht.
+// das Abrechnungs-Programm am Rechner die Mail später nicht.
 function copySubjectSilently() {
   const text = currentSubject;
   if (!text) return Promise.resolve(false);

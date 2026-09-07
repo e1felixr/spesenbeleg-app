@@ -1,9 +1,15 @@
-# Changelog — E1 Spesenbeleg-App
+# Changelog — Belegfoto
+
+## v0.4.1 (07.09.2026, 10:07 Uhr)
+
+### Verbessert
+- **Die App heißt jetzt „Belegfoto" und nennt keine Firma mehr** — Sie liegt in einem öffentlich einsehbaren Repository; darin gehört kein Rückschluss auf das Unternehmen, den internen Ablauf oder das Programm am Rechner. Name, Beschreibung im Manifest, Kopfzeile, README und Quelltext-Kommentare sind entsprechend entkleidet; die Anleitung mit den Firmen-Bezügen lebt dort, wo sie hingehört — im Werkzeug am Rechner. Geheimes stand nie darin: die App hat kein Backend, keine Zugangsdaten und speichert keine Belege.
+- **Hinweis:** Weil sich der App-Name im Manifest geändert hat, greift er auf bereits installierten Telefonen erst nach einer Neuinstallation (App vom Startbildschirm entfernen, Adresse neu öffnen, wieder hinzufügen). Alles andere kommt wie gewohnt beim nächsten Start.
 
 ## v0.4.0 (07.09.2026, 09:41 Uhr)
 
 ### Neu
-- **„Ohne Zuschnitt übernehmen"** — Unterwegs fehlt oft die Ruhe zum Rahmenziehen. Der neue Knopf unter „Weiter zum Zuschneiden" nimmt die Fotos, wie sie sind, und legt sie unmittelbar in die Sammlung. Zurechtgerückt wird später — hier über das Stift-Symbol in der Sammlung, oder am Rechner in der Dokumentenverwaltung, die den Beleg ebenfalls zuschneiden, drehen und aufhellen kann. Die gewählte Bildqualität gilt weiterhin: die Mail muss durch die Anhang-Grenze des Postfachs passen, und volle Kamera-Auflösung bringt bei einem Papierbeleg keinen lesbaren Gewinn.
+- **„Ohne Zuschnitt übernehmen"** — Unterwegs fehlt oft die Ruhe zum Rahmenziehen. Der neue Knopf unter „Weiter zum Zuschneiden" nimmt die Fotos, wie sie sind, und legt sie unmittelbar in die Sammlung. Zurechtgerückt wird später — hier über das Stift-Symbol in der Sammlung, oder später am Rechner, wo sich der Beleg ebenfalls zuschneiden, drehen und aufhellen lässt. Die gewählte Bildqualität gilt weiterhin: die Mail muss durch die Anhang-Grenze des Postfachs passen, und volle Kamera-Auflösung bringt bei einem Papierbeleg keinen lesbaren Gewinn.
 
 ## v0.3.0 (07.09.2026, 09:10 Uhr)
 
@@ -11,7 +17,7 @@
 - **Fotos lassen sich nach dem Zuschneiden erneut anpassen** — Bisher war ein Zuschnitt endgültig: wer den Rahmen zu eng gesetzt oder zu stark aufgehellt hatte, musste den Beleg entfernen und neu fotografieren. Jetzt trägt jedes Foto in der Sammlung unten rechts ein grünes Stift-Symbol; ein Tipp darauf öffnet es wieder im Zuschnitt-Screen — und zwar genau so, wie man es verlassen hat (Rahmen, Begradigung, Aufhellung sind vorbelegt). „Übernehmen" ersetzt das Bild an Ort und Stelle, der Zurück-Pfeil verwirft die Änderung. Auch innerhalb eines laufenden Zuschnitt-Durchgangs merkt sich „Vorheriges Foto erneut zuschneiden" nun die zuletzt gewählten Einstellungen.
 
 ### Verbessert
-- **Der Betreff geht beim Versand nicht mehr verloren** — Ohne das Stichwort „Spesenbeleg" im Betreff findet die Dokumentenverwaltung die Mail später nicht. Der Betreff wird dem Teilen-Menü weiterhin mitgegeben und jetzt zusätzlich automatisch in die Zwischenablage gelegt, ehe es aufgeht: übernimmt das Mail-Programm ihn nicht selbst, genügt ein Einfügen. Ein Hinweis über dem Betreff erklärt das, und die Anhänge tragen den Betreff nun im Dateinamen.
+- **Der Betreff geht beim Versand nicht mehr verloren** — Ohne das Stichwort im Betreff wird die Mail am Rechner später nicht gefunden. Der Betreff wird dem Teilen-Menü weiterhin mitgegeben und jetzt zusätzlich automatisch in die Zwischenablage gelegt, ehe es aufgeht: übernimmt das Mail-Programm ihn nicht selbst, genügt ein Einfügen. Ein Hinweis über dem Betreff erklärt das, und die Anhänge tragen den Betreff nun im Dateinamen.
 
 ### Intern
 - Die Originaldatei jedes Fotos bleibt als `File`-Referenz an der Sammlung hängen (Grundlage des Nachbearbeitens) — bewusst nicht als base64-`dataUrl`, die dauerhaft im Speicher läge. `CropTool` bekommt `getState()` und nimmt in `loadFromDataUrl` einen Zustand entgegen; der Object-URL der Quelldatei wird nach dem Dekodieren sofort freigegeben. Cache-Marken mitgezogen (`?v=103`, `e1-spesenbeleg-v3`).
@@ -39,5 +45,5 @@
 ## v0.1.0 (05.08.2026, 14:35 Uhr)
 
 ### Neu
-- **Erste Version der Spesenbeleg-Erfassungs-PWA** — Beleg(e) mit dem Handy fotografieren (Kamera oder Galerie, mehrere Fotos nacheinander), präzise per Touch/Maus zuschneiden (inkl. optionaler Begradigung/Aufhellung) und direkt über das native Teilen-Menü an die eigene Mail-Adresse senden. Betreff `JJMMDD_Spesenbeleg_#` wird automatisch gebildet (Tageszähler in localStorage) und zusätzlich groß zum manuellen Kopieren angezeigt. Fallback ohne Web-Share/Dateien: Bild-Download + Betreff-Kopie.
+- **Erste Version der Beleg-Erfassungs-PWA** — Beleg(e) mit dem Handy fotografieren (Kamera oder Galerie, mehrere Fotos nacheinander), präzise per Touch/Maus zuschneiden (inkl. optionaler Begradigung/Aufhellung) und direkt über das native Teilen-Menü an die eigene Mail-Adresse senden. Betreff `JJMMDD_Spesenbeleg_#` wird automatisch gebildet (Tageszähler in localStorage) und zusätzlich groß zum manuellen Kopieren angezeigt. Fallback ohne Web-Share/Dateien: Bild-Download + Betreff-Kopie.
 - Offline-fähig als installierbare PWA (Service Worker, Network-first mit Auto-Update-Übernahme beim nächsten App-Start) — kein Server/Backend, keine Laufzeit-Abhängigkeit von Python.

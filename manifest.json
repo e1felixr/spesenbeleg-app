@@ -1,7 +1,7 @@
 {
-  "name": "E1 Spesenbeleg",
-  "short_name": "Spesenbeleg",
-  "description": "E1 Energiemanagement — Spesenbeleg fotografieren, zuschneiden und per Mail versenden",
+  "name": "Belegfoto",
+  "short_name": "Belegfoto",
+  "description": "Belege fotografieren, zuschneiden und per Mail versenden",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",

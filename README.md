@@ -1,68 +1,87 @@
-# E1 Spesenbeleg
+# Belegfoto
 
-Progressive Web App (PWA) zum mobilen Erfassen von Spesenbelegen: mehrere Belege nacheinander fotografieren und zuschneiden (begradigen/aufhellen), in einer Sammlung ansehen und am Ende ALLE zusammen in einer einzigen Mail per Teilen-Menü versenden. Läuft komplett im Browser, funktioniert offline und lässt sich auf dem Smartphone wie eine native App installieren.
+Kleine Web-App (PWA) zum Fotografieren und Zuschneiden von Belegen: mehrere
+Belege nacheinander aufnehmen, zurechtrücken (begradigen/aufhellen), in einer
+Sammlung ansehen und am Ende alle zusammen in einer einzigen Mail über das
+Teilen-Menü des Geräts versenden. Läuft vollständig im Browser, funktioniert
+offline und lässt sich auf dem Smartphone wie eine App installieren.
 
-**App starten:** [https://e1felixr.github.io/spesenbeleg-app/](https://e1felixr.github.io/spesenbeleg-app/)
-
-**aktuelle Version:** v0.2.0 · **Letzte Änderung:** 07.08.2026
+**App starten:** <https://e1felixr.github.io/spesenbeleg-app/>
 
 ## So funktioniert's
 
 Drei Schritte, oben als Punkte 1 – 2 – 3 angezeigt:
 
-1. **Fotografieren** — Beleg mit der Kamera aufnehmen oder aus der Galerie wählen. Mehrere Fotos gehören zu EINEM Beleg (z. B. Vorder- und Rückseite oder mehrere Zettel).
-2. **Zuschneiden** — den Rahmen an den Ecken auf den Beleg ziehen; bei Bedarf zuvor begradigen und aufhellen. Über die Auswahl „Qualität" (Hoch/Mittel/Niedrig) lässt sich die Dateigröße des Fotos steuern — Mittel ist voreingestellt und zielt auf ca. 1 MB je Foto.
-3. **Sammlung & Versand** — der fertig zugeschnittene Beleg landet automatisch in der Sammlung. Von dort entweder „Weiteren Beleg erfassen" (zurück zu Schritt 1, Sammlung bleibt erhalten) oder „Alle senden" — dann gehen alle gesammelten Belege gemeinsam als Anhänge einer einzigen Mail über das native Teilen-Menü raus (im Teilen-Menü Outlook wählen, Empfänger selbst eintragen). Der Betreff `JJMMDD_Spesenbeleg_#_XBelege` wird automatisch gebildet und groß zum Kopieren angezeigt. Unterstützt ein Gerät kein Teilen mit Datei-Anhang, lädt die App die Bilder herunter — der Betreff steht dann bereits zum Kopieren bereit. Über „Sammlung verwerfen und neu beginnen" lässt sich die gesamte Sammlung verwerfen.
+1. **Fotografieren** — Beleg mit der Kamera aufnehmen oder aus der Galerie
+   wählen. Mehrere Fotos gehören zu EINEM Beleg (z. B. Vorder- und Rückseite
+   oder mehrere Zettel). Wer unterwegs keine Ruhe zum Zuschneiden hat, nimmt
+   „Ohne Zuschnitt übernehmen" und rückt später zurecht.
+2. **Zuschneiden** — den Rahmen an den Ecken auf den Beleg ziehen; bei Bedarf
+   zuvor begradigen und aufhellen. Über die Auswahl „Qualität"
+   (Hoch/Mittel/Niedrig) lässt sich die Dateigröße steuern — Mittel ist
+   voreingestellt und zielt auf etwa 1 MB je Foto, damit die Mail durch die
+   Anhang-Grenze des Postfachs passt.
+3. **Sammlung & Versand** — der fertige Beleg landet in der Sammlung. Von dort
+   entweder „Weiteren Beleg erfassen" (zurück zu Schritt 1, Sammlung bleibt
+   erhalten) oder „Alle senden" — dann gehen alle gesammelten Belege gemeinsam
+   als Anhänge einer einzigen Mail über das Teilen-Menü raus (dort die
+   Mail-App wählen, Empfänger selbst eintragen). Ein Betreff wird automatisch
+   gebildet, groß zum Kopieren angezeigt und beim Senden zusätzlich in die
+   Zwischenablage gelegt. Unterstützt ein Gerät kein Teilen mit Datei-Anhang,
+   lädt die App die Bilder herunter.
+
+Jedes Foto in der Sammlung trägt unten rechts ein grünes Stift-Symbol — damit
+lässt sich der Zuschnitt jederzeit erneut ändern.
 
 ## Installation auf dem Smartphone
 
-Die App-URL im Browser öffnen und dann je nach Browser installieren:
+Die Adresse im Browser öffnen und dann je nach Browser installieren:
 
-**Chrome (Android) — empfohlen:**
-1. Menü (drei Punkte oben rechts) antippen
-2. „Zum Startbildschirm hinzufügen" oder „App installieren" wählen
-3. Namen bestätigen → „Hinzufügen"
+**Chrome (Android) — empfohlen:** Menü (drei Punkte oben rechts) →
+„App installieren" bzw. „Zum Startbildschirm hinzufügen" → bestätigen.
 
-**Edge (Android):**
-1. Menü (drei Punkte unten mittig) antippen
-2. „Zum Smartphone hinzufügen" wählen
-3. „Installieren" bestätigen
+**Edge (Android):** Menü (drei Punkte unten mittig) → „Zum Smartphone
+hinzufügen" → „Installieren".
 
-**Samsung Internet:**
-1. Menü (drei Striche unten rechts) antippen
-2. „Seite hinzufügen zu" → „Startbildschirm" wählen
-3. Namen bestätigen → „Hinzufügen"
+**Samsung Internet:** Menü (drei Striche unten rechts) → „Seite hinzufügen zu"
+→ „Startbildschirm" → bestätigen.
 
-**iPhone (Safari):**
-1. Teilen-Symbol (Quadrat mit Pfeil nach oben) antippen
-2. „Zum Home-Bildschirm" wählen
-3. Namen bestätigen → „Hinzufügen"
+**iPhone (Safari):** Teilen-Symbol (Quadrat mit Pfeil nach oben) → „Zum
+Home-Bildschirm" → bestätigen.
 
-Die App erscheint danach als Icon auf dem Startbildschirm und öffnet sich ohne Browser-Leiste im Vollbildmodus.
+Die App erscheint danach als Symbol auf dem Startbildschirm und öffnet sich
+ohne Browser-Leiste im Vollbild.
 
-## Updates & Versionierung
+## Updates
 
-Die App nutzt eine **Network-first-Strategie**: Solange das Gerät online ist, werden beim Öffnen automatisch die aktuellsten Dateien geladen. Ein Update wird beim **nächsten App-Start** übernommen — kein manuelles Eingreifen nötig. Die aktuelle Version steht im Kopf der App.
+Die App lädt beim Öffnen die aktuellen Dateien (Network-first); ein Update
+wird beim **nächsten App-Start** übernommen — ohne Zutun. Die laufende Version
+steht im Kopf der App.
 
-### Muss ich neu installieren?
-
-Die meisten Updates (Code, Styles, Funktionen) kommen automatisch. Nur Änderungen an der `manifest.json` (App-Name, Icons, Orientierung) greifen erst nach einer **Neuinstallation**: App vom Startbildschirm entfernen → im Browser neu öffnen → erneut zum Startbildschirm hinzufügen.
+Nur Änderungen an der `manifest.json` (App-Name, Symbole, Ausrichtung) greifen
+erst nach einer **Neuinstallation**: App vom Startbildschirm entfernen, im
+Browser neu öffnen, erneut hinzufügen.
 
 ## Datenschutz & Datenspeicherung
 
-Die App braucht **keinen Server und kein Backend** — sie läuft vollständig auf dem Gerät.
+Die App braucht **keinen Server und kein Backend** — sie läuft vollständig auf
+dem Gerät.
 
 | Was | Wo | Bleibt erhalten? |
 |-----|-----|-----------------|
 | Belegfotos (auch die gesamte Sammlung) | nur im Arbeitsspeicher | Nein — werden nach dem Versand bzw. Verlassen freigegeben |
-| Betreff-Tageszähler (`#`) | localStorage | Ja (nur die laufende Nummer, kein Bild) |
+| Laufende Nummer des Betreffs | localStorage | Ja (nur die Zahl, kein Bild) |
 | Qualitätsstufe (Hoch/Mittel/Niedrig) | localStorage | Ja (nur die Einstellung, kein Bild) |
 | App-Dateien (HTML/CSS/JS) | Service-Worker-Cache | Nein (wird automatisch neu geladen) |
 
-Es werden **keine Belege und keine Bilddaten an einen Server übertragen** — der Versand läuft ausschließlich über das Teilen-Menü des Geräts (z. B. an Outlook).
+Es werden **keine Belege und keine Bilddaten an einen Server übertragen** — der
+Versand läuft ausschließlich über das Teilen-Menü des Geräts.
 
 ## Hilfe / Probleme
 
-Zeigt die App trotz Internet eine alte Version oder startet nicht sauber: den Browser-Cache leeren (Android: lange auf das App-Icon → App-Info → Speicher → Cache leeren) und die Seite neu öffnen. Der Tageszähler bleibt dabei erhalten.
+Zeigt die App trotz Internet eine alte Fassung oder startet nicht sauber: den
+Browser-Cache leeren (Android: lange auf das App-Symbol → App-Info → Speicher →
+Cache leeren) und die Seite neu öffnen. Die laufende Nummer bleibt erhalten.
 
-Klappt das Teilen auf einem Gerät partout nicht: die Bild(er) herunterladen und wie gewohnt selbst per Mail anhängen — der Betreff steht bereit.
+Klappt das Teilen auf einem Gerät partout nicht: die Bilder herunterladen und
+wie gewohnt selbst per Mail anhängen — der Betreff steht bereit.
